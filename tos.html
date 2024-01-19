@@ -1,0 +1,49 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to QR Code</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        #qrcode {
+            width: 200px;
+            height: 200px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Text to QR Code</h1>
+    <label for="text-input">Masukkan teks:</label>
+    <input type="text" id="text-input">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode"></div>
+
+    <script>
+        // script.js
+        var qrcodeInstance = null; // Menyimpan instance QR Code
+
+        function generateQRCode() {
+            var textInput = document.getElementById('text-input').value;
+
+            // Hapus QR Code yang lama jika sudah ada
+            if (qrcodeInstance !== null) {
+                qrcodeInstance.clear();
+            }
+            qrcodeInstance = document.getElementById('qrcode').value.clear();
+            // Buat QR Code baru
+            qrcodeInstance = new QRCode(document.getElementById('qrcode'), {
+                text: textInput,
+                width: 200,
+                height: 200
+            });
+        }
+
+    </script>
+</body>
+
+</html>

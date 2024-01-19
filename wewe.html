@@ -1,0 +1,72 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=7">
+    <title>Document</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="captureAndUploadButton">Capture and Upload</button>
+    <img id="capturedImage" alt="Captured Image">
+    <div id="responseData"></div>
+
+    <script>
+        let url = "https://script.google.com/macros/s/AKfycbxzZJGyykjbf-cwy2ntdM2gy9K5qRgPvBU2ZtWitHK2LfWN4RtxBMm-DlNfHa9QfND3ng/exec";
+        let video = document.getElementById("video");
+        let captureAndUploadButton = document.getElementById("captureAndUploadButton");
+        let responseDataDiv = document.getElementById("responseData");
+        let capturedImage = document.getElementById('capturedImage');
+        let qr;
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function (err) {
+                console.error('Error accessing the camera: ', err);
+            });
+
+        captureAndUploadButton.addEventListener('click', function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            var context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            var imageDataURL = canvas.toDataURL('image/jpeg');
+
+            capturedImage.src = imageDataURL;
+
+            var spt = imageDataURL.split("base64,")[1];
+            var tangkapGambar = {
+                base64: spt,
+                type: 'image/jpeg',
+                name: 'captured_image.jpg'
+            };
+
+            fetch(url, {
+                method: "POST",
+                body: JSON.stringify(tangkapGambar)
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Menghapus data sebelumnya dan membuat QR Code baru
+                if (qr) {
+                    qr.clear();
+                }
+                qr = new QRCode(responseDataDiv, {
+                    text: data,
+                    width: 128,
+                    height: 128
+                });
+            })
+            .catch(error => console.error('Error capturing and uploading image:', error));
+        });
+    </script>
+</body>
+</html>

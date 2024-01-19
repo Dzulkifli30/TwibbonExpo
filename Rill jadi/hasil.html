@@ -1,0 +1,73 @@
+<!-- hasil.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Twibbon</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #result-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Hasil Twibbon</h1>
+
+    <img id="result-image" alt="Merged Image" src="">
+    <div id="responseData"></div>
+
+    <script>
+        // Mengambil dataUrl dari localStorage
+        const dataUrl = sessionStorage.getItem('mergedImage');
+
+        // Menampilkan gambar hasil pada halaman
+        const resultImage = document.getElementById('result-image');
+        resultImage.src = dataUrl;
+        let url = "https://script.google.com/macros/s/AKfycbxzZJGyykjbf-cwy2ntdM2gy9K5qRgPvBU2ZtWitHK2LfWN4RtxBMm-DlNfHa9QfND3ng/exec";
+        let responseDataDiv = document.getElementById("responseData");
+        let qr;
+
+        // Fungsi untuk mengunggah gambar
+        function uploadImage() {
+            var spt = resultImage.src.split("base64,")[1];
+            var tangkapGambar = {
+                base64: spt,
+                type: 'image/jpeg',
+                name: 'captured_image.jpg'
+            };
+
+            fetch(url, {
+                method: "POST",
+                body: JSON.stringify(tangkapGambar)
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Menghapus data sebelumnya dan membuat QR Code baru
+                if (qr) {
+                    qr.clear();
+                }
+                qr = new QRCode(responseDataDiv, {
+                    text: data,
+                    width: 128,
+                    height: 128
+                });
+            })
+            .catch(error => console.error('Error capturing and uploading image:', error));
+        }
+
+        // Memanggil fungsi uploadImage saat halaman dimuat
+        uploadImage();
+    </script>
+</body>
+
+</html>

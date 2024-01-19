@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twibbon Maker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #image-container {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        #user-video,
+        #twibbon-overlay {
+            width: 500px;
+            height: 500px;
+        }
+
+        #twibbon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #display-btn {
+            position: relative;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Twibbon Maker</h1>
+
+    <div id="image-container">
+        <video id="user-video" autoplay playsinline></video>
+        <img id="twibbon-overlay" src="twibbon.png" alt="Twibbon Overlay">
+    </div>
+
+    <button id="display-btn" onclick="displayMergedImage()">Display Merged Image</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mengakses webcam dan menampilkan video
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    var video = document.getElementById('user-video');
+                    video.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.error('Error accessing webcam: ', error);
+                });
+        });
+
+        function displayMergedImage() {
+            const userImage = document.getElementById('user-video');
+            const twibbonOverlay = document.getElementById('twibbon-overlay');
+
+            // Create a canvas to overlay the images
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 500;
+            canvas.height = 500;
+
+            // Draw user image
+            ctx.drawImage(userImage, 0, 0, canvas.width, canvas.height);
+
+            // Draw twibbon overlay
+            ctx.drawImage(twibbonOverlay, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas content to data URL
+            const dataUrl = canvas.toDataURL('image/png');
+
+            // Store dataUrl in localStorage
+            sessionStorage.setItem('mergedImage', dataUrl);
+
+            // Open a new window and navigate to hasil.html
+            const hasilWindow = window.open('hasil.html', '_blank');
+        }
+    </script>
+</body>
+
+</html>

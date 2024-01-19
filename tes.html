@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twibbon Maker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #image-container {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        #video,
+        #twibbon-overlay {
+            /* max-width: 100%; */
+            height: auto;
+            /* border-radius: 50%; */
+            width: 100px;
+            /* height: 1000px;  */
+        }
+
+        #twibbon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #download-btn {
+            position: relative;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Twibbon Maker</h1>
+
+    <div id="image-container">
+        <video id="video" autoplay playsinline></video>
+        <img id="twibbon-overlay" src="twibbon.png" alt="Twibbon Overlay">
+    </div>
+
+    <button id="download-btn" onclick="downloadImage()">Download Twibbon</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mengakses webcam dan menampilkan video
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    var video = document.getElementById('user-video');
+                    video.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.error('Error accessing webcam: ', error);
+                });
+        });
+
+        function downloadImage() {
+            const userImage = document.getElementById('user-video');
+            const twibbonOverlay = document.getElementById('twibbon-overlay');
+            
+            // Create a canvas to overlay the images
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 500; // Set lebar canvas menjadi 500 piksel
+            canvas.height = 500; // Set tinggi canvas menjadi 500 piksel
+
+            // Draw user image
+            ctx.drawImage(userImage, 0, 0, canvas.width, canvas.height);
+
+            // Draw twibbon overlay
+            ctx.drawImage(twibbonOverlay, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas content to data URL
+            const dataUrl = canvas.toDataURL('image/png');
+
+            // Create a link element and trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataUrl;
+            downloadLink.download = 'twibbon_image.png';
+            downloadLink.click();
+        }
+        let url = "https://script.google.com/macros/s/AKfycbxzZJGyykjbf-cwy2ntdM2gy9K5qRgPvBU2ZtWitHK2LfWN4RtxBMm-DlNfHa9QfND3ng/exec";
+        let video = document.getElementById("video");
+        let captureAndUploadButton = document.getElementById("captureAndUploadButton");
+        let responseDataDiv = document.getElementById("responseData");
+        let capturedImage = document.getElementById('capturedImage');
+        let qr;
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function (err) {
+                console.error('Error accessing the camera: ', err);
+            });
+
+        captureAndUploadButton.addEventListener('click', function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            var context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            var imageDataURL = canvas.toDataURL('image/jpeg');
+
+            capturedImage.src = imageDataURL;
+
+            var spt = imageDataURL.split("base64,")[1];
+            var tangkapGambar = {
+                base64: spt,
+                type: 'image/jpeg',
+                name: 'captured_image.jpg'
+            };
+
+            fetch(url, {
+                method: "POST",
+                body: JSON.stringify(tangkapGambar)
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Menghapus data sebelumnya dan membuat QR Code baru
+                if (qr) {
+                    qr.clear();
+                }
+                qr = new QRCode(responseDataDiv, {
+                    text: data,
+                    width: 128,
+                    height: 128
+                });
+            })
+            .catch(error => console.error('Error capturing and uploading image:', error));
+        });
+    </script>
+</body>
+
+</html>
